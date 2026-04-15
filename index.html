@@ -96,10 +96,12 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 <div class="tab-nav">
   <div class="tabs" id="tabs-bar"></div>
   <button class="flow-tab-btn" id="flow-tab-btn" onclick="showFlow()">🔀 フロー</button>
+  <button class="flow-tab-btn" id="tools-tab-btn" onclick="showTools()">🛠 ツール</button>
 </div>
 
 <div id="cards-container" class="cards"></div>
 <div id="flow-container" class="flow-wrap" style="display:none;"></div>
+<div id="tools-container" style="display:none;padding:16px;"></div>
 
 <div class="modal-overlay" id="edit-modal">
   <div class="modal">
@@ -171,15 +173,16 @@ function renderTabs(){
       <div>${s}</div>
     </button>`;
   }).join('');
-  const fb=document.getElementById('flow-tab-btn');
-  fb.classList.toggle('active',viewMode==='flow');
-  document.getElementById('add-btn-el').style.display=viewMode==='flow'?'none':'block';
+  document.getElementById('flow-tab-btn').classList.toggle('active',viewMode==='flow');
+  document.getElementById('tools-tab-btn').classList.toggle('active',viewMode==='tools');
+  document.getElementById('add-btn-el').style.display=(viewMode==='flow'||viewMode==='tools')?'none':'block';
 }
 
 function setFilter(f){
   filter=f;viewMode='apps';
   document.getElementById('cards-container').style.display='';
   document.getElementById('flow-container').style.display='none';
+  document.getElementById('tools-container').style.display='none';
   renderTabs();renderCards();
 }
 
@@ -187,7 +190,53 @@ function showFlow(){
   viewMode='flow';
   document.getElementById('cards-container').style.display='none';
   document.getElementById('flow-container').style.display='';
+  document.getElementById('tools-container').style.display='none';
   renderTabs();renderFlow();
+}
+
+function showTools(){
+  viewMode='tools';
+  document.getElementById('cards-container').style.display='none';
+  document.getElementById('flow-container').style.display='none';
+  document.getElementById('tools-container').style.display='';
+  renderTabs();renderToolsView();
+}
+
+function renderToolsView(){
+  const TOOLS=[
+    {cat:'開発・デプロイ',color:'#7c6dfa',items:[
+      {name:'GitHub',desc:'ソースコード管理',url:'https://github.com/chabin0323-dev',icon:'🐙'},
+      {name:'Vercel',desc:'デプロイ・ホスティング',url:'https://vercel.com/chabins-projects-e0403cc6',icon:'▲'},
+      {name:'Google AI Studio',desc:'Gemini APIキー管理',url:'https://aistudio.google.com/',icon:'✨'},
+    ]},
+    {cat:'販売・決済',color:'#4ade80',items:[
+      {name:'PayPal',desc:'決済・売上管理',url:'https://www.paypal.com/mep/dashboard',icon:'💳'},
+      {name:'note（販売ページ）',desc:'コンテンツ販売',url:'https://note.com/like_swan6953',icon:'📝'},
+    ]},
+    {cat:'自動化・管理',color:'#fbbf24',items:[
+      {name:'Google Apps Script',desc:'PayPal自動返信メール',url:'https://script.google.com/',icon:'⚙️'},
+      {name:'Google スプレッドシート',desc:'アプリ管理・データ管理',url:'https://docs.google.com/spreadsheets/',icon:'📊'},
+    ]},
+    {cat:'AI・制作ツール',color:'#f87171',items:[
+      {name:'Claude (Anthropic)',desc:'コード生成・設計支援',url:'https://claude.ai',icon:'🤖'},
+      {name:'ChatGPT',desc:'画像生成・文章作成',url:'https://chatgpt.com',icon:'💬'},
+    ]},
+  ];
+  document.getElementById('tools-container').innerHTML=TOOLS.map(cat=>`
+    <div style="margin-bottom:20px;">
+      <div style="font-size:11px;font-weight:700;color:${cat.color};letter-spacing:0.08em;margin-bottom:10px;padding-left:4px;">${cat.cat}</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        ${cat.items.map(t=>`
+          <a href="${t.url}" target="_blank" style="text-decoration:none;display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--border);border-left:3px solid ${cat.color};border-radius:12px;padding:14px 16px;transition:opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+            <div style="font-size:22px;width:32px;text-align:center;flex-shrink:0;">${t.icon}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-family:Syne,sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;">${t.name}</div>
+              <div style="font-size:11px;color:var(--text3);">${t.desc}</div>
+            </div>
+            <div style="font-size:16px;color:var(--text3);">→</div>
+          </a>`).join('')}
+      </div>
+    </div>`).join('');
 }
 
 function renderFlow(){
