@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>NEXA アプリ管理</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface2: #1a1a26;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.15);
+  --text: #f0f0f5;
+  --text2: #8888aa;
+  --text3: #555570;
+  --accent: #7c6dfa;
+  --accent2: #fa6d9a;
+  --green: #4ade80;
+  --amber: #fbbf24;
+  --gray: #6b7280;
+  --red: #f87171;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; overflow-x: hidden; }
+h1,h2,h3 { font-family: 'Syne', sans-serif; }
+
+/* Header */
+.header { padding: 20px 16px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--bg); z-index: 100; backdrop-filter: blur(10px); }
+.logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; letter-spacing: -0.5px; }
+.logo span { color: var(--accent); }
+.header-right { display: flex; gap: 10px; align-items: center; }
+.add-btn { background: var(--accent); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Syne', sans-serif; transition: opacity 0.2s; }
+.add-btn:hover { opacity: 0.85; }
+
+/* Stats bar */
+.stats-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border-bottom: 1px solid var(--border); }
+.stat-item { background: var(--bg); padding: 14px 16px; text-align: center; }
+.stat-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); }
+.stat-label { font-size: 10px; color: var(--text3); margin-top: 2px; letter-spacing: 0.05em; }
+
+/* Filters */
+.filters { padding: 14px 16px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--border); }
+.filters::-webkit-scrollbar { display: none; }
+.filter-btn { border: 1px solid var(--border2); background: transparent; color: var(--text2); padding: 6px 16px; border-radius: 20px; font-size: 12px; cursor: pointer; white-space: nowrap; font-family: 'Noto Sans JP', sans-serif; transition: all 0.2s; }
+.filter-btn.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+/* Cards */
+.cards { padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color 0.2s; }
+.card:hover { border-color: var(--border2); }
+.card-top { padding: 16px 16px 0; }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.app-name { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
+.app-model { font-size: 10px; color: var(--text3); margin-top: 2px; }
+.badge { font-size: 10px; padding: 4px 10px; border-radius: 20px; font-weight: 700; white-space: nowrap; }
+.badge-green { background: rgba(74,222,128,0.15); color: var(--green); }
+.badge-amber { background: rgba(251,191,36,0.15); color: var(--amber); }
+.badge-gray { background: rgba(107,114,128,0.15); color: var(--gray); }
+
+/* Mini stats */
+.mini-stats { display: flex; gap: 8px; margin-bottom: 12px; }
+.mini-stat { background: var(--surface2); border-radius: 8px; padding: 8px 12px; flex: 1; text-align: center; }
+.mini-val { font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
+.mini-label { font-size: 9px; color: var(--text3); margin-top: 1px; }
+
+/* URLs */
+.urls { margin-bottom: 12px; display: flex; flex-direction: column; gap: 5px; }
+.url-row { display: flex; gap: 8px; align-items: center; }
+.url-tag { font-size: 9px; background: var(--surface2); color: var(--text3); padding: 2px 8px; border-radius: 10px; min-width: 44px; text-align: center; flex-shrink: 0; }
+.url-link { font-size: 11px; color: var(--accent); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.url-link:hover { text-decoration: underline; }
+
+/* Photos */
+.photos-row { display: flex; gap: 8px; margin-bottom: 12px; overflow-x: auto; scrollbar-width: none; }
+.photos-row::-webkit-scrollbar { display: none; }
+.photo-thumb { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; flex-shrink: 0; border: 1px solid var(--border); cursor: pointer; }
+.photo-add { width: 60px; height: 60px; border-radius: 10px; background: var(--surface2); border: 1px dashed var(--border2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; cursor: pointer; font-size: 22px; color: var(--text3); transition: all 0.2s; }
+.photo-add:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Memo */
+.memo { font-size: 12px; color: var(--text2); background: var(--surface2); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; line-height: 1.6; min-height: 40px; }
+
+/* Actions */
+.card-actions { border-top: 1px solid var(--border); display: flex; }
+.action-btn { flex: 1; padding: 12px 8px; background: transparent; border: none; color: var(--text3); font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'Noto Sans JP', sans-serif; }
+.action-btn:hover { background: var(--surface2); color: var(--text); }
+.action-btn + .action-btn { border-left: 1px solid var(--border); }
+.action-btn.danger:hover { color: var(--red); }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; padding: 20px 16px 40px; }
+.modal-handle { width: 40px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 20px; }
+.modal-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+.form-group { margin-bottom: 16px; }
+.form-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; }
+.form-input, .form-select, .form-textarea { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: 10px; padding: 12px 14px; color: var(--text); font-size: 14px; font-family: 'Noto Sans JP', sans-serif; outline: none; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-textarea { resize: vertical; min-height: 80px; }
+.form-select { appearance: none; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.save-btn { flex: 1; background: var(--accent); color: white; border: none; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: 'Syne', sans-serif; }
+.cancel-btn { background: var(--surface2); color: var(--text2); border: none; padding: 14px 20px; border-radius: 12px; font-size: 15px; cursor: pointer; }
+.delete-btn { background: rgba(248,113,113,0.15); color: var(--red); border: none; padding: 14px 20px; border-radius: 12px; font-size: 15px; cursor: pointer; }
+
+/* Photo modal */
+.photo-modal-img { width: 100%; border-radius: 12px; margin-bottom: 16px; }
+
+/* Empty */
+.empty { text-align: center; padding: 60px 20px; color: var(--text3); }
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
+
+/* Toast */
+.toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--surface2); color: var(--text); padding: 10px 20px; border-radius: 20px; font-size: 13px; border: 1px solid var(--border2); opacity: 0; transition: opacity 0.3s; z-index: 300; white-space: nowrap; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">NEX<span>A</span></div>
+  <div class="header-right">
+    <button class="add-btn" onclick="openAddModal()">+ 新規追加</button>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-val" id="total-count">0</div>
+    <div class="stat-label">総アプリ数</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-val" id="active-count">0</div>
+    <div class="stat-label">販売中</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-val" id="dev-count">0</div>
+    <div class="stat-label">開発中</div>
+  </div>
+</div>
+
+<div class="filters">
+  <button class="filter-btn active" onclick="filterApps('all', this)">すべて</button>
+  <button class="filter-btn" onclick="filterApps('販売中', this)">販売中</button>
+  <button class="filter-btn" onclick="filterApps('開発中', this)">開発中</button>
+  <button class="filter-btn" onclick="filterApps('企画', this)">企画</button>
+</div>
+
+<div class="cards" id="cards-container"></div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">新規アプリ追加</div>
+    <input type="hidden" id="edit-id">
+
+    <div class="form-group">
+      <label class="form-label">アプリ名</label>
+      <input class="form-input" id="f-name" placeholder="例：相性占いアプリ">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">ステータス</label>
+        <select class="form-select" id="f-status">
+          <option value="販売中">販売中</option>
+          <option value="開発中">開発中</option>
+          <option value="企画">企画</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">AIモデル</label>
+        <input class="form-input" id="f-model" placeholder="Gemini 3 Flash">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">アプリURL（ホスト）</label>
+      <input class="form-input" id="f-url-host" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">販売URL</label>
+      <input class="form-input" id="f-url-sales" placeholder="https://...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">決済URL（PayPal）</label>
+      <input class="form-input" id="f-url-payment" placeholder="https://paypal.com/...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">購入ありがとうページURL</label>
+      <input class="form-input" id="f-url-thanks" placeholder="https://...">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">単価（円）</label>
+        <input class="form-input" id="f-price" type="number" placeholder="780">
+      </div>
+      <div class="form-group">
+        <label class="form-label">累計アクセス</label>
+        <input class="form-input" id="f-access" type="number" placeholder="0">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">APIキー（Vercel）</label>
+      <input class="form-input" id="f-apikey" placeholder="VITE_API_KEY">
+    </div>
+    <div class="form-group">
+      <label class="form-label">メモ・備考</label>
+      <textarea class="form-textarea" id="f-memo" placeholder="開発メモや改善点など..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">スクリーンショット（画像）</label>
+      <input type="file" id="f-photo" accept="image/*" multiple style="color:var(--text2);font-size:13px;">
+    </div>
+
+    <div class="modal-actions">
+      <button class="cancel-btn" onclick="closeModal()">キャンセル</button>
+      <button class="delete-btn" id="delete-btn" onclick="deleteApp()" style="display:none">削除</button>
+      <button class="save-btn" onclick="saveApp()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- Photo View Modal -->
+<div class="modal-overlay" id="photo-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <img class="photo-modal-img" id="photo-modal-img" src="">
+    <button class="cancel-btn" style="width:100%" onclick="closePhotoModal()">閉じる</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const STORAGE_KEY = 'nexa_apps_v1';
+
+const DEFAULT_APPS = [
+  {
+    id: '1',
+    name: '相性占いアプリ（相性分析）',
+    status: '販売中',
+    model: 'Gemini 3 Flash preview',
+    urlHost: 'https://aisou-fortune-host.vercel.app/',
+    urlSales: 'https://check-seven-amber.vercel.app/',
+    urlPayment: 'https://www.paypal.com/ncp/payment/AMEJ4V5C564UN',
+    urlThanks: 'https://thankyou-ten-peach.vercel.app/',
+    price: 780,
+    access: 149,
+    apikey: 'VITE_API_KEY',
+    memo: '無料版：compatibility-free-final.vercel.app\nサンクスページ：thankyou-ten-peach.vercel.app',
+    photos: []
+  },
+  {
+    id: '2',
+    name: '個人占いアプリ',
+    status: '開発中',
+    model: 'Gemini 3 Flash preview',
+    urlHost: 'https://host-fortune.vercel.app/',
+    urlSales: '',
+    urlPayment: '',
+    urlThanks: '',
+    price: 0,
+    access: 0,
+    apikey: 'VITE_API_KEY',
+    memo: '開発中',
+    photos: []
+  },
+  {
+    id: '3',
+    name: 'SNS投稿アプリ',
+    status: '企画',
+    model: 'Gemini 3 Flash preview',
+    urlHost: 'https://sns-post-pro.vercel.app/',
+    urlSales: '',
+    urlPayment: '',
+    urlThanks: '',
+    price: 0,
+    access: 0,
+    apikey: 'VITE_GEMINI_API_KEY',
+    memo: '企画段階',
+    photos: []
+  },
+  {
+    id: '4',
+    name: '議事録生成アプリ',
+    status: '企画',
+    model: 'Gemini 3 Flash preview',
+    urlHost: '',
+    urlSales: '',
+    urlPayment: '',
+    urlThanks: '',
+    price: 0,
+    access: 0,
+    apikey: 'VITE_GEMINI_API_KEY',
+    memo: '企画段階',
+    photos: []
+  }
+];
+
+let apps = [];
+let currentFilter = 'all';
+
+function loadApps() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      apps = JSON.parse(saved);
+    } else {
+      apps = DEFAULT_APPS;
+      saveApps();
+    }
+  } catch(e) {
+    apps = DEFAULT_APPS;
+  }
+}
+
+function saveApps() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(apps));
+}
+
+function updateStats() {
+  document.getElementById('total-count').textContent = apps.length;
+  document.getElementById('active-count').textContent = apps.filter(a => a.status === '販売中').length;
+  document.getElementById('dev-count').textContent = apps.filter(a => a.status === '開発中').length;
+}
+
+function getBadgeClass(status) {
+  if (status === '販売中') return 'badge-green';
+  if (status === '開発中') return 'badge-amber';
+  return 'badge-gray';
+}
+
+function renderCards() {
+  const container = document.getElementById('cards-container');
+  const filtered = currentFilter === 'all' ? apps : apps.filter(a => a.status === currentFilter);
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty"><div class="empty-icon">📱</div><div>アプリがありません</div></div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map(app => `
+    <div class="card" id="card-${app.id}">
+      <div class="card-top">
+        <div class="card-header">
+          <div>
+            <div class="app-name">${app.name}</div>
+            <div class="app-model">${app.model || ''}</div>
+          </div>
+          <span class="badge ${getBadgeClass(app.status)}">${app.status}</span>
+        </div>
+
+        ${app.price || app.access ? `
+        <div class="mini-stats">
+          ${app.access ? `<div class="mini-stat"><div class="mini-val">${app.access}</div><div class="mini-label">アクセス</div></div>` : ''}
+          ${app.price ? `<div class="mini-stat"><div class="mini-val">¥${app.price.toLocaleString()}</div><div class="mini-label">単価</div></div>` : ''}
+        </div>` : ''}
+
+        <div class="urls">
+          ${app.urlHost ? `<div class="url-row"><span class="url-tag">ホスト</span><a class="url-link" href="${app.urlHost}" target="_blank">${app.urlHost.replace('https://','')}</a></div>` : ''}
+          ${app.urlSales ? `<div class="url-row"><span class="url-tag">販売</span><a class="url-link" href="${app.urlSales}" target="_blank">${app.urlSales.replace('https://','')}</a></div>` : ''}
+          ${app.urlPayment ? `<div class="url-row"><span class="url-tag">決済</span><a class="url-link" href="${app.urlPayment}" target="_blank">${app.urlPayment.replace('https://','').substring(0,40)}...</a></div>` : ''}
+          ${app.urlThanks ? `<div class="url-row"><span class="url-tag">感謝</span><a class="url-link" href="${app.urlThanks}" target="_blank">${app.urlThanks.replace('https://','')}</a></div>` : ''}
+        </div>
+
+        ${app.photos && app.photos.length > 0 ? `
+        <div class="photos-row">
+          ${app.photos.map((p,i) => `<img class="photo-thumb" src="${p}" onclick="viewPhoto('${p}')">`).join('')}
+          <div class="photo-add" onclick="addPhotoToApp('${app.id}')">+</div>
+        </div>` : `
+        <div class="photos-row">
+          <div class="photo-add" onclick="addPhotoToApp('${app.id}')">📷</div>
+        </div>`}
+
+        ${app.memo ? `<div class="memo">${app.memo.replace(/\n/g,'<br>')}</div>` : ''}
+      </div>
+      <div class="card-actions">
+        <button class="action-btn" onclick="openEditModal('${app.id}')">✏️ 編集</button>
+        <button class="action-btn" onclick="copyUrl('${app.urlHost || app.urlSales || ''}')">🔗 URLコピー</button>
+        <button class="action-btn" onclick="openEditModal('${app.id}')">📝 メモ</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterApps(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCards();
+}
+
+function openAddModal() {
+  document.getElementById('modal-title').textContent = '新規アプリ追加';
+  document.getElementById('edit-id').value = '';
+  document.getElementById('delete-btn').style.display = 'none';
+  ['name','model','url-host','url-sales','url-payment','url-thanks','apikey','memo'].forEach(f => {
+    document.getElementById('f-' + f).value = '';
+  });
+  document.getElementById('f-status').value = '企画';
+  document.getElementById('f-price').value = '';
+  document.getElementById('f-access').value = '';
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function openEditModal(id) {
+  const app = apps.find(a => a.id === id);
+  if (!app) return;
+  document.getElementById('modal-title').textContent = 'アプリを編集';
+  document.getElementById('edit-id').value = id;
+  document.getElementById('delete-btn').style.display = 'block';
+  document.getElementById('f-name').value = app.name || '';
+  document.getElementById('f-status').value = app.status || '企画';
+  document.getElementById('f-model').value = app.model || '';
+  document.getElementById('f-url-host').value = app.urlHost || '';
+  document.getElementById('f-url-sales').value = app.urlSales || '';
+  document.getElementById('f-url-payment').value = app.urlPayment || '';
+  document.getElementById('f-url-thanks').value = app.urlThanks || '';
+  document.getElementById('f-price').value = app.price || '';
+  document.getElementById('f-access').value = app.access || '';
+  document.getElementById('f-apikey').value = app.apikey || '';
+  document.getElementById('f-memo').value = app.memo || '';
+  document.getElementById('edit-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('edit-modal').classList.remove('open');
+}
+
+function saveApp() {
+  const id = document.getElementById('edit-id').value;
+  const data = {
+    name: document.getElementById('f-name').value,
+    status: document.getElementById('f-status').value,
+    model: document.getElementById('f-model').value,
+    urlHost: document.getElementById('f-url-host').value,
+    urlSales: document.getElementById('f-url-sales').value,
+    urlPayment: document.getElementById('f-url-payment').value,
+    urlThanks: document.getElementById('f-url-thanks').value,
+    price: parseInt(document.getElementById('f-price').value) || 0,
+    access: parseInt(document.getElementById('f-access').value) || 0,
+    apikey: document.getElementById('f-apikey').value,
+    memo: document.getElementById('f-memo').value,
+  };
+
+  if (!data.name) { showToast('アプリ名を入力してください'); return; }
+
+  const photoInput = document.getElementById('f-photo');
+  const processPhotos = (existing) => {
+    if (photoInput.files.length === 0) {
+      finalize(existing);
+      return;
+    }
+    const readers = Array.from(photoInput.files).map(file => new Promise(resolve => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result);
+      reader.readAsDataURL(file);
+    }));
+    Promise.all(readers).then(newPhotos => finalize([...existing, ...newPhotos]));
+  };
+
+  const finalize = (photos) => {
+    data.photos = photos;
+    if (id) {
+      const idx = apps.findIndex(a => a.id === id);
+      if (idx !== -1) apps[idx] = { ...apps[idx], ...data };
+    } else {
+      data.id = Date.now().toString();
+      apps.push(data);
+    }
+    saveApps();
+    renderCards();
+    updateStats();
+    closeModal();
+    showToast('保存しました');
+  };
+
+  const existing = id ? (apps.find(a => a.id === id)?.photos || []) : [];
+  processPhotos(existing);
+}
+
+function deleteApp() {
+  const id = document.getElementById('edit-id').value;
+  if (!id) return;
+  if (!confirm('このアプリを削除しますか？')) return;
+  apps = apps.filter(a => a.id !== id);
+  saveApps();
+  renderCards();
+  updateStats();
+  closeModal();
+  showToast('削除しました');
+}
+
+function addPhotoToApp(id) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const app = apps.find(a => a.id === id);
+      if (app) {
+        app.photos = app.photos || [];
+        app.photos.push(ev.target.result);
+        saveApps();
+        renderCards();
+        showToast('写真を追加しました');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function viewPhoto(src) {
+  document.getElementById('photo-modal-img').src = src;
+  document.getElementById('photo-modal').classList.add('open');
+}
+
+function closePhotoModal() {
+  document.getElementById('photo-modal').classList.remove('open');
+}
+
+function copyUrl(url) {
+  if (!url) { showToast('URLがありません'); return; }
+  navigator.clipboard.writeText(url).then(() => showToast('URLをコピーしました'));
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.getElementById('edit-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.getElementById('photo-modal').addEventListener('click', function(e) {
+  if (e.target === this) closePhotoModal();
+});
+
+loadApps();
+renderCards();
+updateStats();
+</script>
+</body>
+</html>
