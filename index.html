@@ -136,10 +136,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-seri
 <div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY='nexa_apps_v3';
+const STORAGE_KEY='nexa_apps_v4';
 const DEFAULT_APPS=[
-  {id:'0',name:'無料相性占いアプリ（TikTok集客用）',status:'販売中',model:'Gemini 3 Flash preview',urlHost:'https://nexa-lovelab.com/',urlSales:'https://lovelab-sales.vercel.app',urlPayment:'https://www.paypal.com/ncp/payment/AMEJ4V5C564UN',urlThanks:'https://lovelab-thankyou.vercel.app',price:780,access:0,apikey:'VITE_API_KEY',memo:'TikTok → nexa-lovelab.com → lovelab-sales.vercel.app → PayPal\nGAS自動返信 → lovelab-thankyou.vercel.app',photos:[]},
-  {id:'1',name:'相性占いアプリ（相性分析）',status:'販売中',model:'Gemini 3 Flash preview',urlHost:'https://aisou-fortune-host.vercel.app/',urlSales:'https://lovelab-sales.vercel.app',urlPayment:'https://www.paypal.com/ncp/payment/AMEJ4V5C564UN',urlThanks:'https://lovelab-thankyou.vercel.app',price:780,access:149,apikey:'VITE_API_KEY',memo:'有料版アプリ本体 / 無料版：nexa-lovelab.com',photos:[]},
+  {id:'0',name:'無料相性占いアプリ（TikTok集客用）',status:'販売中',model:'Gemini 3 Flash preview',urlHost:'https://nexa-lovelab.com/',urlSales:'https://nexa-lovelab.com/paid',urlPayment:'https://www.paypal.com/ncp/payment/AMEJ4V5C564UN',urlThanks:'https://lovelab-thankyou.vercel.app',price:780,access:0,apikey:'VITE_API_KEY',memo:'TikTok → nexa-lovelab.com/?from=tiktok → 無料鑑定 → /paid → PayPal\nGAS自動返信 → lovelab-thankyou.vercel.app',photos:[]},
+  {id:'1',name:'相性占いアプリ（相性分析）',status:'販売中',model:'Gemini 3 Flash preview',urlHost:'https://aisou-fortune-host.vercel.app/',urlSales:'https://nexa-lovelab.com/paid',urlPayment:'https://www.paypal.com/ncp/payment/AMEJ4V5C564UN',urlThanks:'https://lovelab-thankyou.vercel.app',price:780,access:149,apikey:'VITE_API_KEY',memo:'有料版アプリ本体 / 無料版：nexa-lovelab.com',photos:[]},
   {id:'2',name:'個人占いアプリ',status:'開発中',model:'Gemini 3 Flash preview',urlHost:'https://host-fortune.vercel.app/',urlSales:'',urlPayment:'',urlThanks:'',price:0,access:0,apikey:'VITE_API_KEY',memo:'開発中',photos:[]},
   {id:'3',name:'SNS投稿アプリ',status:'企画',model:'Gemini 3 Flash preview',urlHost:'https://sns-post-pro.vercel.app/',urlSales:'',urlPayment:'',urlThanks:'',price:0,access:0,apikey:'VITE_GEMINI_API_KEY',memo:'企画段階',photos:[]},
   {id:'4',name:'議事録生成アプリ',status:'企画',model:'Gemini 3 Flash preview',urlHost:'',urlSales:'',urlPayment:'',urlThanks:'',price:0,access:0,apikey:'VITE_GEMINI_API_KEY',memo:'企画段階',photos:[]}
@@ -268,10 +268,10 @@ function getFlowSVG(appId){
 </g>
 <line x1="180" y1="522" x2="180" y2="550" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arr0)"/>
 <text x="195" y="540" font-family="sans-serif" font-size="10" fill="#1D9E75">支払い完了</text>
-<g onclick="window.open('https://thankyou-ten-peach.vercel.app/')" style="cursor:pointer">
+<g onclick="window.open('https://lovelab-thankyou.vercel.app/')" style="cursor:pointer">
   <rect x="20" y="550" width="320" height="80" rx="10" fill="#001a1a" stroke="#1D9E75" stroke-width="1.5"/>
   <text x="180" y="576" text-anchor="middle" font-family="Syne,sans-serif" font-size="13" font-weight="700" fill="#9FE1CB">⑥ サンクスページ</text>
-  <text x="180" y="596" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5DCAA5">thankyou-ten-peach.vercel.app</text>
+  <text x="180" y="596" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5DCAA5">lovelab-thankyou.vercel.app</text>
   <text x="180" y="614" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#5DCAA5">アプリURLボタン・注意事項（タップで開く）</text>
 </g>
 <line x1="180" y1="630" x2="180" y2="658" stroke="#1D9E75" stroke-width="1.5" marker-end="url(#arr0)"/>
@@ -313,10 +313,10 @@ function getFlowSVG(appId){
 </g>
 <line x1="180" y1="228" x2="180" y2="256" stroke="#EF9F27" stroke-width="1.5" marker-end="url(#arr1)"/>
 <text x="195" y="246" font-family="sans-serif" font-size="10" fill="#EF9F27">ボタンをタップ</text>
-<g onclick="window.open('https://lovelab-sales.vercel.app')" style="cursor:pointer">
+<g onclick="window.open('https://nexa-lovelab.com/paid')" style="cursor:pointer">
   <rect x="20" y="256" width="320" height="80" rx="10" fill="#2a1800" stroke="#EF9F27" stroke-width="1.5"/>
   <text x="180" y="282" text-anchor="middle" font-family="Syne,sans-serif" font-size="13" font-weight="700" fill="#FAC775">③ 販売ページ</text>
-  <text x="180" y="302" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#EF9F27">lovelab-sales.vercel.app</text>
+  <text x="180" y="302" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#EF9F27">nexa-lovelab.com/paid</text>
   <text x="180" y="320" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#EF9F27">商品説明・画像・購入ボタン（タップで開く）</text>
 </g>
 <line x1="180" y1="336" x2="180" y2="364" stroke="#EF9F27" stroke-width="1.5" marker-end="url(#arr1)"/>
